@@ -1,0 +1,10 @@
+{
+	"id": "property-organizer",
+	"name": "Property Organizer",
+	"version": "1.0.0",
+	"minAppVersion": "1.6.6",
+	"description": "Keep frontmatter properties in a custom order.",
+	"author": "vkostyanetsky",
+	"authorUrl": "https://github.com/vkostyanetsky",
+	"isDesktopOnly": false
+}
