@@ -9,9 +9,28 @@ describe("normalizeSettings", () => {
 		expect(normalizeSettings({})).toEqual(DEFAULT_SETTINGS);
 	});
 
+	it("keeps the previous behavior when the unlisted setting is absent", () => {
+		const settings = normalizeSettings({ createMissingProperties: true, templates: [] });
+
+		expect(settings.unlistedProperties).toBe("keep");
+	});
+
+	it("accepts every known unlisted behavior and rejects anything else", () => {
+		expect(normalizeSettings({ unlistedProperties: "keep" }).unlistedProperties).toBe("keep");
+		expect(normalizeSettings({ unlistedProperties: "remove-empty" }).unlistedProperties).toBe(
+			"remove-empty",
+		);
+		expect(normalizeSettings({ unlistedProperties: "remove-all" }).unlistedProperties).toBe(
+			"remove-all",
+		);
+		expect(normalizeSettings({ unlistedProperties: "remove" }).unlistedProperties).toBe("keep");
+		expect(normalizeSettings({ unlistedProperties: true }).unlistedProperties).toBe("keep");
+	});
+
 	it("keeps templates in their stored order", () => {
 		const settings = normalizeSettings({
 			createMissingProperties: true,
+			unlistedProperties: "remove-all",
 			templates: [
 				{ folder: "Projects", properties: "type, status" },
 				{ folder: "", properties: "created" },
@@ -19,6 +38,7 @@ describe("normalizeSettings", () => {
 		});
 
 		expect(settings.createMissingProperties).toBe(true);
+		expect(settings.unlistedProperties).toBe("remove-all");
 		expect(settings.templates).toEqual([
 			{ folder: "Projects", properties: "type, status" },
 			{ folder: "", properties: "created" },
