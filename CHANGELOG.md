@@ -4,11 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 1.2.0 - 2026-08-05
 
 ### Changed
 
-* Notices no longer repeat the plugin name. Obsidian already shows which plugin a notice comes from, and the Obsidian UI text guidelines ask for sentence case without a plugin-name prefix, so `Property Organizer: properties sorted.` now reads `Properties sorted.` and the summary of **Sort properties in all notes** reads `3 notes updated, 12 unchanged, 40 skipped, 0 errors.` Messages written to the developer console keep the prefix, since there it tells apart the logs of one plugin from another's.
+* **Obsidian 1.13.0 is now the minimum required version**, raised from 1.6.6. The settings are declared with the settings API introduced in 1.13.0, which is what makes them reachable through the search in *Settings*. Vaults on an older Obsidian keep whatever version they have installed and are not offered the update.
+* The **Folder templates** list is now a list of settings declared to Obsidian, so its add, delete and reorder controls are the app's own and behave as they do in the rest of the settings; the move up and move down buttons the plugin used to draw are gone. A row still holds the folder field and the property list side by side, and existing settings are read unchanged — nothing has to be reconfigured.
+
+### Removed
+
+* The plugin's own move up, move down and delete buttons on a template row, along with the styling they needed. Obsidian provides those affordances for a declared list of settings.
 
 ## 1.1.0 - 2026-08-05
 
@@ -19,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 * Notes are no longer processed when the vault is opened unless **Process all notes on vault startup** is turned on. Both commands keep working exactly as before, whatever the setting is.
+* Notices no longer repeat the plugin name. Obsidian already shows which plugin a notice comes from, and the Obsidian UI text guidelines ask for sentence case without a plugin-name prefix, so `Property Organizer: properties sorted.` now reads `Properties sorted.` and the summary of **Sort properties in all notes** reads `3 notes updated, 12 unchanged, 40 skipped, 0 errors.` Messages written to the developer console keep the prefix, since there it tells apart the logs of one plugin from another's.
 
 ## 1.0.0 - 2026-08-04
 

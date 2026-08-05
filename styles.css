@@ -3,53 +3,42 @@
 	padding-inline-start: var(--size-4-4);
 }
 
-.property-organizer-templates .property-organizer-empty {
-	color: var(--text-muted);
-	font-size: var(--font-ui-small);
-	padding: var(--size-4-2) 0;
-}
+/*
+Each row of the folder template list holds two fields, so the row gives its
+whole width to them. The name stays in the markup for the settings search,
+which indexes it, but is not shown.
+*/
 
-.property-organizer-template {
-	padding-top: var(--size-4-2);
-	padding-bottom: var(--size-4-2);
-}
-
-.property-organizer-template .setting-item-info {
+.property-organizer-templates .property-organizer-template .setting-item-info {
 	display: none;
 }
 
-.property-organizer-template .setting-item-control {
+.property-organizer-templates .property-organizer-template .setting-item-control {
 	width: 100%;
 	justify-content: flex-start;
 	gap: var(--size-4-1);
 }
 
-.property-organizer-template .search-input-container {
+.property-organizer-templates .property-organizer-template .search-input-container {
 	flex: 2 1 0;
 	min-width: 0;
 }
 
-.property-organizer-template .property-organizer-folder,
-.property-organizer-template .property-organizer-properties {
+.property-organizer-templates .property-organizer-folder,
+.property-organizer-templates .property-organizer-properties {
 	width: 100%;
 	min-width: 0;
 }
 
-.property-organizer-template .property-organizer-properties {
+.property-organizer-templates .property-organizer-properties {
 	flex: 3 1 0;
 }
 
-.property-organizer-template .clickable-icon:focus-visible,
-.property-organizer-template input:focus-visible {
+.property-organizer-templates input:focus-visible {
 	outline: 2px solid var(--interactive-accent);
 	outline-offset: 2px;
 }
 
-.is-mobile .property-organizer-template .setting-item-control {
+.is-mobile .property-organizer-templates .property-organizer-template .setting-item-control {
 	flex-wrap: wrap;
-}
-
-.is-mobile .property-organizer-template .clickable-icon {
-	min-width: 44px;
-	min-height: 44px;
 }

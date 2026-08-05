@@ -1,5 +1,5 @@
-import { PluginSettingTab, Setting } from "obsidian";
-import type { App } from "obsidian";
+import { PluginSettingTab } from "obsidian";
+import type { App, Setting, SettingDefinition, SettingDefinitionItem } from "obsidian";
 
 import { FolderSuggest } from "./folderSuggest";
 import { createEmptyTemplate, parseUnlistedPropertiesBehavior } from "./settings";
@@ -8,85 +8,160 @@ import type PropertyOrganizerPlugin from "./main";
 
 export class PropertyOrganizerSettingTab extends PluginSettingTab {
 	private readonly plugin: PropertyOrganizerPlugin;
-	private templatesEl: HTMLElement | null = null;
 
 	constructor(app: App, plugin: PropertyOrganizerPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
 
-	display(): void {
-		const { containerEl } = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName("Process all notes on vault startup")
-			.setDesc(
-				"Sort the properties of every matching note once the vault has finished loading. " +
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		return [
+			{
+				name: "Process all notes on vault startup",
+				desc:
+					"Sort the properties of every matching note once the vault has finished loading. " +
 					"Off by default; the commands stay available either way.",
-			)
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.processAllNotesOnStartup).onChange((value) => {
-					this.plugin.settings.processAllNotesOnStartup = value;
-					this.persist();
-				}),
-			);
-
-		new Setting(containerEl)
-			.setName("Create missing properties")
-			.setDesc(
-				"Add properties that a template lists but a note does not have yet. " +
+				control: {
+					type: "toggle",
+					key: "processAllNotesOnStartup",
+					defaultValue: false,
+				},
+			},
+			{
+				name: "Create missing properties",
+				desc:
+					"Add properties that a template lists but a note does not have yet. " +
 					"They are created empty, and existing values are never touched.",
-			)
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.createMissingProperties).onChange((value) => {
-					this.plugin.settings.createMissingProperties = value;
-					this.persist();
-				}),
-			);
-
-		new Setting(containerEl)
-			.setName("Unlisted properties")
-			.setDesc("Choose how to handle properties that are not included in the matched template.")
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOptions({
+				control: {
+					type: "toggle",
+					key: "createMissingProperties",
+					defaultValue: false,
+				},
+			},
+			{
+				name: "Unlisted properties",
+				desc: "Choose how to handle properties that are not included in the matched template.",
+				control: {
+					type: "dropdown",
+					key: "unlistedProperties",
+					defaultValue: "keep",
+					options: {
 						keep: "Keep all",
 						"remove-empty": "Remove if empty",
 						"remove-all": "Remove all",
-					})
-					.setValue(this.plugin.settings.unlistedProperties)
-					.onChange((value) => {
-						this.plugin.settings.unlistedProperties =
-							parseUnlistedPropertiesBehavior(value);
-						this.persist();
-					}),
-			);
-
-		new Setting(containerEl)
-			.setName("Folder templates")
-			.setDesc(this.createHints())
-			.setHeading();
-
-		this.templatesEl = containerEl.createDiv({ cls: "property-organizer-templates" });
-		this.renderTemplates();
-
-		new Setting(containerEl).addButton((button) =>
-			button
-				.setButtonText("Add template")
-				.setCta()
-				.onClick(() => {
-					this.plugin.settings.templates.push(createEmptyTemplate());
-					this.persist();
-					this.renderTemplates();
-				}),
-		);
+					},
+				},
+			},
+			{
+				type: "list",
+				heading: "Folder templates",
+				cls: "property-organizer-templates",
+				emptyState: "No templates yet. Notes stay untouched until you add one.",
+				items: this.plugin.settings.templates.map((template) => this.templateRow(template)),
+				onReorder: (from, to) => {
+					this.moveTemplate(from, to);
+				},
+				onDelete: (index) => {
+					this.deleteTemplate(index);
+				},
+				addItem: {
+					name: "Add template",
+					action: () => {
+						this.addTemplate();
+					},
+				},
+			},
+			{
+				name: "How templates are matched",
+				desc: this.createHints(),
+			},
+		];
 	}
 
-	hide(): void {
-		this.templatesEl = null;
-		super.hide();
+	getControlValue(key: string): unknown {
+		switch (key) {
+			case "processAllNotesOnStartup":
+				return this.plugin.settings.processAllNotesOnStartup;
+			case "createMissingProperties":
+				return this.plugin.settings.createMissingProperties;
+			case "unlistedProperties":
+				return this.plugin.settings.unlistedProperties;
+			default:
+				return undefined;
+		}
+	}
+
+	setControlValue(key: string, value: unknown): Promise<void> {
+		switch (key) {
+			case "processAllNotesOnStartup":
+				this.plugin.settings.processAllNotesOnStartup = value === true;
+				break;
+			case "createMissingProperties":
+				this.plugin.settings.createMissingProperties = value === true;
+				break;
+			case "unlistedProperties":
+				this.plugin.settings.unlistedProperties = parseUnlistedPropertiesBehavior(value);
+				break;
+		}
+
+		return this.plugin.saveSettings();
+	}
+
+	/**
+	 * A template as one editable row of the list, holding both of its fields.
+	 *
+	 * The row is rendered imperatively because a declarative definition carries
+	 * a single control, while a template needs two. It stays a plain row of the
+	 * list rather than a navigable page, which is what gives it the delete and
+	 * reorder affordances the list provides.
+	 */
+	private templateRow(template: FolderTemplate): SettingDefinition {
+		return {
+			// Hidden by the stylesheet to leave the row to its two fields; kept
+			// meaningful because the settings search indexes it.
+			name: template.folder.trim() === "" ? "Vault root" : template.folder,
+			aliases: [template.properties],
+			render: (setting: Setting) => {
+				setting.setClass("property-organizer-template");
+
+				let suggest: FolderSuggest | null = null;
+
+				setting.addSearch((search) => {
+					search
+						.setPlaceholder("Folder, empty for the vault root")
+						.setValue(template.folder)
+						.onChange((value) => {
+							template.folder = value;
+							this.save();
+						});
+
+					search.inputEl.addClass("property-organizer-folder");
+					search.inputEl.setAttribute("aria-label", "Template folder");
+
+					suggest = new FolderSuggest(this.app, search.inputEl, (folderPath) => {
+						template.folder = folderPath;
+						this.save();
+					});
+				});
+
+				setting.addText((text) => {
+					text
+						.setPlaceholder("Example: type, status, created")
+						.setValue(template.properties)
+						.onChange((value) => {
+							template.properties = value;
+							this.save();
+						});
+
+					text.inputEl.addClass("property-organizer-properties");
+					text.inputEl.setAttribute("aria-label", "Property order");
+				});
+
+				return () => {
+					suggest?.close();
+				};
+			},
+		};
 	}
 
 	private createHints(): DocumentFragment {
@@ -108,100 +183,14 @@ export class PropertyOrganizerSettingTab extends PluginSettingTab {
 		});
 	}
 
-	private renderTemplates(): void {
-		const container = this.templatesEl;
-
-		if (container === null) {
-			return;
-		}
-
-		container.empty();
-
-		const templates = this.plugin.settings.templates;
-
-		if (templates.length === 0) {
-			container.createDiv({
-				cls: "property-organizer-empty",
-				text: "No templates yet. Notes stay untouched until you add one.",
-			});
-
-			return;
-		}
-
-		templates.forEach((template, index) => {
-			this.renderTemplateRow(container, template, index, templates.length);
-		});
+	private addTemplate(): void {
+		this.plugin.settings.templates.push(createEmptyTemplate());
+		this.persist();
 	}
 
-	private renderTemplateRow(
-		container: HTMLElement,
-		template: FolderTemplate,
-		index: number,
-		total: number,
-	): void {
-		const setting = new Setting(container).setClass("property-organizer-template");
-
-		setting.addExtraButton((button) =>
-			button
-				.setIcon("chevron-up")
-				.setTooltip("Move up")
-				.setDisabled(index === 0)
-				.onClick(() => {
-					this.moveTemplate(index, index - 1);
-				}),
-		);
-
-		setting.addExtraButton((button) =>
-			button
-				.setIcon("chevron-down")
-				.setTooltip("Move down")
-				.setDisabled(index === total - 1)
-				.onClick(() => {
-					this.moveTemplate(index, index + 1);
-				}),
-		);
-
-		setting.addSearch((search) => {
-			search
-				.setPlaceholder("Folder, empty for the vault root")
-				.setValue(template.folder)
-				.onChange((value) => {
-					template.folder = value;
-					this.persist();
-				});
-
-			search.inputEl.addClass("property-organizer-folder");
-			search.inputEl.setAttribute("aria-label", "Template folder");
-
-			new FolderSuggest(this.app, search.inputEl, (folderPath) => {
-				template.folder = folderPath;
-				this.persist();
-			});
-		});
-
-		setting.addText((text) => {
-			text
-				.setPlaceholder("Example: type, status, created")
-				.setValue(template.properties)
-				.onChange((value) => {
-					template.properties = value;
-					this.persist();
-				});
-
-			text.inputEl.addClass("property-organizer-properties");
-			text.inputEl.setAttribute("aria-label", "Property order");
-		});
-
-		setting.addExtraButton((button) =>
-			button
-				.setIcon("trash-2")
-				.setTooltip("Delete template")
-				.onClick(() => {
-					this.plugin.settings.templates.splice(index, 1);
-					this.persist();
-					this.renderTemplates();
-				}),
-		);
+	private deleteTemplate(index: number): void {
+		this.plugin.settings.templates.splice(index, 1);
+		this.persist();
 	}
 
 	private moveTemplate(from: number, to: number): void {
@@ -215,10 +204,22 @@ export class PropertyOrganizerSettingTab extends PluginSettingTab {
 
 		templates.splice(to, 0, moved);
 		this.persist();
-		this.renderTemplates();
 	}
 
+	/**
+	 * Saves the settings and rebuilds the definitions, which is what makes an
+	 * added, deleted or reordered template appear in its new place.
+	 */
 	private persist(): void {
+		this.update();
+		this.save();
+	}
+
+	/**
+	 * Saves without rebuilding, for edits made inside a row: a rebuild on every
+	 * keystroke would replace the input the user is typing into.
+	 */
+	private save(): void {
 		this.plugin.saveSettings().catch((error: unknown) => {
 			console.error("Property Organizer: unable to save settings.", error);
 		});

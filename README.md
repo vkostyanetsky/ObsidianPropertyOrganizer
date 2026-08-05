@@ -168,9 +168,13 @@ After an automatic run, a notice appears only if notes were updated or errors oc
 - **Process all notes on vault startup** — described above. Off by default.
 - **Create missing properties** — described above.
 - **Unlisted properties** — described above. A dropdown with **Keep all**, **Remove if empty** and **Remove all**.
-- **Folder templates** — an ordered list. Each row has move up / move down buttons, a folder field with vault folder suggestions, a comma-separated property list and a delete button. **Add template** appends a new row. Changes are saved automatically.
+- **Folder templates** — an ordered list. Each row holds a folder field, with vault folder suggestions, and a comma-separated property list. Rows are reordered and deleted with the controls Obsidian renders for the list, and **Add template** appends a new row. Changes are saved automatically.
+
+The settings are built from declarative definitions, so they are found by the search in *Settings*.
 
 ## Installation
+
+The plugin requires Obsidian **1.13.0** or newer, which is where the declarative settings API it is built on arrived.
 
 The plugin is not published in the community catalog. Install it manually:
 
@@ -208,7 +212,7 @@ Source layout:
 |------|----------------|
 | `src/main.ts` | Plugin class, commands, automatic run |
 | `src/settings.ts` | Settings types, defaults, loading |
-| `src/settingsTab.ts` | Settings interface |
+| `src/settingsTab.ts` | Declarative setting definitions |
 | `src/folderSuggest.ts` | Folder suggestions |
 | `src/templateMatching.ts` | Matching templates against note paths |
 | `src/propertyOrder.ts` | Pure property-order computation |
@@ -226,7 +230,7 @@ Source layout:
 
 ## Mobile
 
-The plugin is not desktop-only and works on mobile. It uses the public Obsidian API only — no Node.js, Electron or direct file-system access — and notes are processed sequentially, one after another, so a large vault does not flood the device with parallel writes. The settings rows are reordered with buttons rather than drag-and-drop, so they work with touch as well as with a keyboard.
+The plugin is not desktop-only and works on mobile. It uses the public Obsidian API only — no Node.js, Electron or direct file-system access — and notes are processed sequentially, one after another, so a large vault does not flood the device with parallel writes. The controls of the folder template list — add, delete and reorder — are the ones Obsidian renders for a list of settings, so they behave as they do elsewhere in the app; the add affordance, for one, is a button on desktop and a row on mobile. The plugin only renders the two fields inside a row.
 
 ## Credits
 

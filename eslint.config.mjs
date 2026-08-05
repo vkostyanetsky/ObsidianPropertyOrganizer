@@ -14,11 +14,5 @@ export default defineConfig([
 				sourceType: "module",
 			},
 		},
-		rules: {
-			// The settings tab renders a reorderable list of folder templates,
-			// which the declarative API cannot express as a single row, and
-			// minAppVersion (1.6.6) predates that API anyway.
-			"obsidianmd/settings-tab/prefer-setting-definitions": "off",
-		},
 	},
 ]);
