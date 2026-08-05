@@ -33,14 +33,18 @@ export class VaultNoteAccess implements NoteAccess<TFile> {
 		if (frontmatter === undefined) {
 			// A block that is present but absent from the cache failed to
 			// parse. Let the note be read so the YAML error surfaces.
-			return cache.frontmatterPosition === undefined ? { exists: false, keys: [] } : null;
+			return cache.frontmatterPosition === undefined ? { exists: false, properties: {} } : null;
 		}
 
-		const keys = Object.keys(frontmatter).filter(
-			(key) => !isPositionEntry(key, frontmatter[key]),
-		);
+		const properties: Record<string, unknown> = {};
 
-		return { exists: true, keys };
+		for (const key of Object.keys(frontmatter)) {
+			if (!isPositionEntry(key, frontmatter[key])) {
+				properties[key] = frontmatter[key];
+			}
+		}
+
+		return { exists: true, properties };
 	}
 
 	async processFrontMatter(

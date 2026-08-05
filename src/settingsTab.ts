@@ -2,7 +2,7 @@ import { PluginSettingTab, Setting } from "obsidian";
 import type { App } from "obsidian";
 
 import { FolderSuggest } from "./folderSuggest";
-import { createEmptyTemplate } from "./settings";
+import { createEmptyTemplate, parseUnlistedPropertiesBehavior } from "./settings";
 import type { FolderTemplate } from "./settings";
 import type PropertyOrganizerPlugin from "./main";
 
@@ -31,6 +31,24 @@ export class PropertyOrganizerSettingTab extends PluginSettingTab {
 					this.plugin.settings.createMissingProperties = value;
 					this.persist();
 				}),
+			);
+
+		new Setting(containerEl)
+			.setName("Unlisted properties")
+			.setDesc("Choose how to handle properties that are not included in the matched template.")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOptions({
+						keep: "Keep all",
+						"remove-empty": "Remove if empty",
+						"remove-all": "Remove all",
+					})
+					.setValue(this.plugin.settings.unlistedProperties)
+					.onChange((value) => {
+						this.plugin.settings.unlistedProperties =
+							parseUnlistedPropertiesBehavior(value);
+						this.persist();
+					}),
 			);
 
 		new Setting(containerEl)
@@ -72,7 +90,7 @@ export class PropertyOrganizerSettingTab extends PluginSettingTab {
 				text: "When several templates match a note, the first one in this list wins.",
 			});
 			list.createEl("li", {
-				text: "Properties that are not listed are kept and follow the listed ones.",
+				text: "Properties that are not listed follow the listed ones, unless the setting above removes them.",
 			});
 		});
 	}

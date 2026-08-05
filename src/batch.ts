@@ -1,5 +1,5 @@
 import { organizeNote } from "./organizer";
-import type { NoteAccess } from "./organizer";
+import type { NoteAccess, OrganizeOptions } from "./organizer";
 
 export interface OrganizeSummary {
 	updated: number;
@@ -8,10 +8,9 @@ export interface OrganizeSummary {
 	errors: number;
 }
 
-export interface BatchOptions<TNote> {
+export interface BatchOptions<TNote> extends OrganizeOptions {
 	/** Property order for the note, or null when no template matches it. */
 	resolveTemplate: (note: TNote) => string[] | null;
-	createMissing: boolean;
 	access: NoteAccess<TNote>;
 	/** Called once per failed note so the caller can log it. */
 	onError?: (note: TNote, error: unknown) => void;
@@ -37,6 +36,10 @@ export async function organizeNotes<TNote>(
 	options: BatchOptions<TNote>,
 ): Promise<OrganizeSummary> {
 	const summary = createEmptySummary();
+	const noteOptions: OrganizeOptions = {
+		createMissing: options.createMissing,
+		unlisted: options.unlisted,
+	};
 
 	for (const note of notes) {
 		const templateProperties = options.resolveTemplate(note);
@@ -46,12 +49,7 @@ export async function organizeNotes<TNote>(
 			continue;
 		}
 
-		const result = await organizeNote(
-			note,
-			templateProperties,
-			options.createMissing,
-			options.access,
-		);
+		const result = await organizeNote(note, templateProperties, noteOptions, options.access);
 
 		switch (result.outcome) {
 			case "updated":

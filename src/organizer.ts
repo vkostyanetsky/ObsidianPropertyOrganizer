@@ -1,6 +1,15 @@
 import { applyPropertyOrder, computePropertyOrder } from "./propertyOrder";
+import type { UnlistedPropertiesBehavior } from "./settings";
 
 export type NoteOutcome = "updated" | "unchanged" | "skipped" | "error";
+
+/** The settings that decide what happens to a note matched by a template. */
+export interface OrganizeOptions {
+	/** Create properties listed in the template but missing from the note. */
+	createMissing: boolean;
+	/** What to do with properties the template does not list. */
+	unlisted: UnlistedPropertiesBehavior;
+}
 
 export interface NoteResult {
 	outcome: NoteOutcome;
@@ -12,8 +21,8 @@ export interface NoteResult {
 export interface CachedFrontMatter {
 	/** Whether the note has a frontmatter block. */
 	exists: boolean;
-	/** Property names in their current order. */
-	keys: string[];
+	/** Property values keyed by name, in their current order. */
+	properties: Record<string, unknown>;
 }
 
 /**
@@ -38,23 +47,27 @@ export interface NoteAccess<TNote> {
  * Applies a template's property order to a single note.
  *
  * The note is only written when its properties are actually out of order (or
- * when missing properties have to be created).
+ * when missing properties have to be created, or unlisted ones removed).
  */
 export async function organizeNote<TNote>(
 	note: TNote,
 	templateProperties: string[],
-	createMissing: boolean,
+	options: OrganizeOptions,
 	access: NoteAccess<TNote>,
 ): Promise<NoteResult> {
 	try {
 		const cached = access.getCachedFrontMatter(note);
 
 		if (cached !== null) {
-			if (!cached.exists && !createMissing) {
+			if (!cached.exists && !options.createMissing) {
 				return { outcome: "skipped" };
 			}
 
-			const preview = computePropertyOrder(cached.keys, templateProperties, createMissing);
+			const preview = computePropertyOrder(
+				Object.keys(cached.properties),
+				templateProperties,
+				{ ...options, values: cached.properties },
+			);
 
 			if (!preview.changed) {
 				return { outcome: "unchanged" };
@@ -66,15 +79,14 @@ export async function organizeNote<TNote>(
 		await access.processFrontMatter(note, (frontmatter) => {
 			const existing = Object.keys(frontmatter);
 
-			if (existing.length === 0 && !createMissing) {
+			if (existing.length === 0 && !options.createMissing) {
 				return;
 			}
 
-			const { order, changed } = computePropertyOrder(
-				existing,
-				templateProperties,
-				createMissing,
-			);
+			const { order, changed } = computePropertyOrder(existing, templateProperties, {
+				...options,
+				values: frontmatter,
+			});
 
 			if (!changed) {
 				return;

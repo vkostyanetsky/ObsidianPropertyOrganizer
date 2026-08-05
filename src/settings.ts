@@ -9,17 +9,45 @@ export interface FolderTemplate {
 	properties: string;
 }
 
+/**
+ * What to do with the frontmatter properties of a matched note that the
+ * matching template does not list.
+ *
+ * - `keep` — leave them alone, after the listed ones.
+ * - `remove-empty` — drop the ones whose value is empty.
+ * - `remove-all` — drop every one of them.
+ */
+export type UnlistedPropertiesBehavior = "keep" | "remove-empty" | "remove-all";
+
+const UNLISTED_PROPERTIES_BEHAVIORS: readonly UnlistedPropertiesBehavior[] = [
+	"keep",
+	"remove-empty",
+	"remove-all",
+];
+
 export interface PropertyOrganizerSettings {
 	/** Create properties listed in a template but missing from the note. */
 	createMissingProperties: boolean;
+	/** How to treat properties the matching template does not list. */
+	unlistedProperties: UnlistedPropertiesBehavior;
 	/** Templates in priority order: the first match wins. */
 	templates: FolderTemplate[];
 }
 
 export const DEFAULT_SETTINGS: PropertyOrganizerSettings = {
 	createMissingProperties: false,
+	unlistedProperties: "keep",
 	templates: [],
 };
+
+/**
+ * Narrows an arbitrary value to a known behavior. Anything else — including
+ * the field being absent in settings saved by an earlier version — becomes
+ * `keep`, the behavior the plugin had before the setting existed.
+ */
+export function parseUnlistedPropertiesBehavior(value: unknown): UnlistedPropertiesBehavior {
+	return UNLISTED_PROPERTIES_BEHAVIORS.find((behavior) => behavior === value) ?? "keep";
+}
 
 export function createEmptyTemplate(): FolderTemplate {
 	return { folder: "", properties: "" };
@@ -59,6 +87,7 @@ export function normalizeSettings(raw: unknown): PropertyOrganizerSettings {
 
 	return {
 		createMissingProperties: data.createMissingProperties === true,
+		unlistedProperties: parseUnlistedPropertiesBehavior(data.unlistedProperties),
 		templates,
 	};
 }

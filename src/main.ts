@@ -4,6 +4,7 @@ import type { TFile } from "obsidian";
 import { formatSummary, organizeNotes } from "./batch";
 import type { OrganizeSummary } from "./batch";
 import { organizeNote } from "./organizer";
+import type { OrganizeOptions } from "./organizer";
 import { parsePropertyList } from "./propertyOrder";
 import { DEFAULT_SETTINGS, normalizeSettings } from "./settings";
 import type { PropertyOrganizerSettings } from "./settings";
@@ -98,7 +99,7 @@ export default class PropertyOrganizerPlugin extends Plugin {
 		const result = await organizeNote(
 			file,
 			parsePropertyList(template.properties),
-			this.settings.createMissingProperties,
+			this.organizeOptions(),
 			this.noteAccess,
 		);
 
@@ -119,6 +120,14 @@ export default class PropertyOrganizerPlugin extends Plugin {
 		}
 	}
 
+	/** The current settings in the shape the organizing logic expects. */
+	private organizeOptions(): OrganizeOptions {
+		return {
+			createMissing: this.settings.createMissingProperties,
+			unlisted: this.settings.unlistedProperties,
+		};
+	}
+
 	private async organizeVault(): Promise<OrganizeSummary> {
 		return organizeNotes(this.app.vault.getMarkdownFiles(), {
 			resolveTemplate: (file) => {
@@ -126,7 +135,7 @@ export default class PropertyOrganizerPlugin extends Plugin {
 
 				return template === null ? null : parsePropertyList(template.properties);
 			},
-			createMissing: this.settings.createMissingProperties,
+			...this.organizeOptions(),
 			access: this.noteAccess,
 			onError: (file, error) => {
 				console.error(`Property Organizer: unable to process ${file.path}.`, error);
