@@ -1,7 +1,5 @@
 # Property Organizer
 
-[README in Russian](README.ru.md)
-
 An Obsidian plugin that keeps the properties of your YAML frontmatter in the order you chose. You describe the order per folder, and the plugin rewrites the property order of matching notes — values, names and note content stay exactly as they were.
 
 Sorting runs once when the vault is opened, and on demand through two commands. Notes are never sorted behind your back when they are created, edited, renamed or moved.
@@ -78,7 +76,7 @@ type, status, created, modified, tags
 ## Sorting rules
 
 - Properties listed in the selected template come first, in template order.
-- Every other existing property follows, keeping its original relative order.
+- Every other existing property follows, keeping its original relative order, unless **Unlisted properties** removes it.
 - Values, property names and their casing are never changed.
 - Content after the frontmatter is never touched.
 - If the frontmatter is already in the required order, the file is not written again.
@@ -100,6 +98,36 @@ A global setting, **off** by default.
   The required order is applied afterwards.
 
 Property types are left to Obsidian: the plugin never assigns or changes a property type. If a name already has a vault-level type, Obsidian applies it on its own.
+
+## Unlisted properties
+
+A global setting that decides what happens to the frontmatter properties of a matched note that the matching template does **not** list. It applies to both commands and to the automatic run, and only to notes a template matches — notes without a template are never touched.
+
+| Value | What happens |
+|-------|--------------|
+| **Keep all** *(default)* | Nothing is removed. Unlisted properties follow the listed ones, keeping their relative order. |
+| **Remove if empty** | Unlisted properties with an empty value are removed; filled ones are kept and follow the listed ones. |
+| **Remove all** | Every unlisted property is removed. After the run, the frontmatter contains only the properties of the template. |
+
+A value counts as **empty** when it is:
+
+- an Obsidian property without a value (`null`);
+- an empty string, or a string of spaces only;
+- an empty list;
+- an empty map.
+
+`false`, `0` and dates are values, not empty properties.
+
+Properties **listed** in the template are never removed, even when they are empty. Removal happens before missing properties are created, so a template property removed as empty is not the same thing: it is simply kept.
+
+For a note matched by a template, the order of operations is:
+
+1. The template is selected by the usual folder rules.
+2. Unlisted properties are handled as **Unlisted properties** says.
+3. Missing template properties are created if **Create missing properties** is on.
+4. The remaining properties are sorted in template order.
+
+Removing properties is a destructive change, so keep the default until you are sure the templates list every property you want to keep — a fallback template for the vault root with an empty property list plus **Remove all** would strip the frontmatter of every note in the vault.
 
 ## Commands
 
@@ -127,6 +155,7 @@ After an automatic run, a notice appears only if notes were updated or errors oc
 ## Settings
 
 - **Create missing properties** — described above.
+- **Unlisted properties** — described above. A dropdown with **Keep all**, **Remove if empty** and **Remove all**.
 - **Folder templates** — an ordered list. Each row has move up / move down buttons, a folder field with vault folder suggestions, a comma-separated property list and a delete button. **Add template** appends a new row. Changes are saved automatically.
 
 ## Installation
