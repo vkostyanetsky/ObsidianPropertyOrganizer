@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+* Notices no longer repeat the plugin name. Obsidian already shows which plugin a notice comes from, and the Obsidian UI text guidelines ask for sentence case without a plugin-name prefix, so `Property Organizer: properties sorted.` now reads `Properties sorted.` and the summary of **Sort properties in all notes** reads `3 notes updated, 12 unchanged, 40 skipped, 0 errors.` Messages written to the developer console keep the prefix, since there it tells apart the logs of one plugin from another's.
+
+## 1.1.0 - 2026-08-05
+
+### Added
+
+* The **Process all notes on vault startup** setting, off by default, deciding whether the batch run happening once per vault load takes place at all. With it on the run behaves as it did before: it starts after the workspace is ready and the metadata cache has finished its initial build, and shows a notice only when notes were updated or errors occurred. The setting is saved with the rest of the settings and is read when the vault is loaded, so switching it on takes effect the next time the vault is opened.
+
+### Changed
+
+* Notes are no longer processed when the vault is opened unless **Process all notes on vault startup** is turned on. Both commands keep working exactly as before, whatever the setting is.
+
 ## 1.0.0 - 2026-08-04
 
 ### Added

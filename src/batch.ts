@@ -22,8 +22,8 @@ export function createEmptySummary(): OrganizeSummary {
 
 export function formatSummary(summary: OrganizeSummary): string {
 	return (
-		`Property Organizer: ${summary.updated} notes updated, ` +
-		`${summary.unchanged} unchanged, ${summary.skipped} skipped, ${summary.errors} errors.`
+		`${summary.updated} notes updated, ${summary.unchanged} unchanged, ` +
+		`${summary.skipped} skipped, ${summary.errors} errors.`
 	);
 }
 

@@ -15,14 +15,6 @@ export default defineConfig([
 			},
 		},
 		rules: {
-			// Notices are prefixed with the plugin name, which keeps its casing.
-			"obsidianmd/ui/sentence-case": [
-				"warn",
-				{
-					brands: ["Property Organizer", "Obsidian", "Obsidian Sync", "Obsidian Publish"],
-					enforceCamelCaseLower: true,
-				},
-			],
 			// The settings tab renders a reorderable list of folder templates,
 			// which the declarative API cannot express as a single row, and
 			// minAppVersion (1.6.6) predates that API anyway.

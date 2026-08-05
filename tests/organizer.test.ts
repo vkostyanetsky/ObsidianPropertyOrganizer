@@ -330,7 +330,7 @@ describe("organizeNotes", () => {
 describe("formatSummary", () => {
 	it("renders the summary notice", () => {
 		expect(formatSummary({ updated: 3, unchanged: 2, skipped: 1, errors: 0 })).toBe(
-			"Property Organizer: 3 notes updated, 2 unchanged, 1 skipped, 0 errors.",
+			"3 notes updated, 2 unchanged, 1 skipped, 0 errors.",
 		);
 	});
 });

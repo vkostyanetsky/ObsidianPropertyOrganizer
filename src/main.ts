@@ -91,7 +91,7 @@ export default class PropertyOrganizerPlugin extends Plugin {
 		const template = findTemplateForPath(this.settings.templates, file.path);
 
 		if (template === null) {
-			new Notice("Property Organizer: no matching template for the current note.");
+			new Notice("No matching template for the current note.");
 
 			return;
 		}
@@ -105,17 +105,15 @@ export default class PropertyOrganizerPlugin extends Plugin {
 
 		switch (result.outcome) {
 			case "updated":
-				new Notice("Property Organizer: properties sorted.");
+				new Notice("Properties sorted.");
 				break;
 			case "unchanged":
 			case "skipped":
-				new Notice("Property Organizer: properties are already organized.");
+				new Notice("Properties are already organized.");
 				break;
 			case "error":
 				console.error(`Property Organizer: unable to process ${file.path}.`, result.error);
-				new Notice(
-					"Property Organizer: the current note could not be processed. See the console for details.",
-				);
+				new Notice("The current note could not be processed. See the console for details.");
 				break;
 		}
 	}
@@ -144,10 +142,15 @@ export default class PropertyOrganizerPlugin extends Plugin {
 	}
 
 	/**
-	 * Sorting runs once per vault load. When the layout is already ready the
-	 * plugin is being enabled or reloaded by hand, and nothing is scheduled.
+	 * Sorting runs once per vault load, and only when the user asked for it.
+	 * When the layout is already ready the plugin is being enabled or reloaded
+	 * by hand, and nothing is scheduled.
 	 */
 	private scheduleInitialRun(): void {
+		if (!this.settings.processAllNotesOnStartup) {
+			return;
+		}
+
 		if (this.app.workspace.layoutReady) {
 			return;
 		}

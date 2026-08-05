@@ -5,6 +5,9 @@ on:
 
 permissions:
   contents: write
+  # Required by actions/attest-build-provenance to sign the release assets.
+  id-token: write
+  attestations: write
 
 jobs:
   build:
@@ -30,6 +33,13 @@ jobs:
 
       - name: Build plugin
         run: npm run build
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            main.js
+            styles.css
 
       - name: Read version from manifest
         id: version

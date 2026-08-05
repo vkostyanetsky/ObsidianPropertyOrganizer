@@ -2,7 +2,7 @@
 
 An Obsidian plugin that keeps the properties of your YAML frontmatter in the order you chose. You describe the order per folder, and the plugin rewrites the property order of matching notes — values, names and note content stay exactly as they were.
 
-Sorting runs once when the vault is opened, and on demand through two commands. Notes are never sorted behind your back when they are created, edited, renamed or moved.
+Sorting runs on demand through two commands, and — if you turn the setting on — once when the vault is opened. Notes are never sorted behind your back when they are created, edited, renamed or moved.
 
 ## Example
 
@@ -133,20 +133,31 @@ Removing properties is a destructive change, so keep the default until you are s
 
 | Command | What it does |
 |---------|--------------|
-| **Sort properties in all notes** | Processes every Markdown note matched by a template. Notes outside the configured folders are not processed. Shows a summary notice: `Property Organizer: 3 notes updated, 12 unchanged, 40 skipped, 0 errors.` |
+| **Sort properties in all notes** | Processes every Markdown note matched by a template. Notes outside the configured folders are not processed. Shows a summary notice: `3 notes updated, 12 unchanged, 40 skipped, 0 errors.` |
 | **Sort properties in current note** | Processes only the note of the active Markdown view. The command is unavailable when the active view is not a Markdown note. |
 
 In the summary, *skipped* counts notes that were not processed at all: no template matched them, or they have no frontmatter while **Create missing properties** is off.
 
 The current note command reports what happened:
 
-- `Property Organizer: no matching template for the current note.`
-- `Property Organizer: properties are already organized.`
-- `Property Organizer: properties sorted.`
+- `No matching template for the current note.`
+- `Properties are already organized.`
+- `Properties sorted.`
+
+## Process all notes on vault startup
+
+A global setting, **off** by default: the plugin processes notes only when you run a command.
+
+- **Off** — nothing happens when the vault is opened.
+- **On** — every Markdown note matched by a template is processed once the vault has finished loading.
+
+The commands work the same way whatever the setting is: turning it off never disables them.
+
+The setting is read when the vault is loaded, so switching it on takes effect the next time you open the vault. Use **Sort properties in all notes** to process the vault right away.
 
 ## Automatic run
 
-The automatic run happens **once per vault load**: after the workspace is ready and after the metadata cache has finished its initial build, without blocking the interface. Writes made by the plugin do not start it again.
+When **Process all notes on vault startup** is on, the automatic run happens **once per vault load**: after the workspace is ready and after the metadata cache has finished its initial build, without blocking the interface. Writes made by the plugin do not start it again.
 
 Enabling, disabling or hot-reloading the plugin after the vault has finished loading does **not** trigger a batch run — use the commands instead.
 
@@ -154,6 +165,7 @@ After an automatic run, a notice appears only if notes were updated or errors oc
 
 ## Settings
 
+- **Process all notes on vault startup** — described above. Off by default.
 - **Create missing properties** — described above.
 - **Unlisted properties** — described above. A dropdown with **Keep all**, **Remove if empty** and **Remove all**.
 - **Folder templates** — an ordered list. Each row has move up / move down buttons, a folder field with vault folder suggestions, a comma-separated property list and a delete button. **Add template** appends a new row. Changes are saved automatically.
@@ -206,7 +218,7 @@ Source layout:
 
 ## Limitations
 
-- Notes are only processed on demand or once per vault load; there is no live sorting on create, edit, rename or move.
+- Notes are only processed on demand, or once per vault load when **Process all notes on vault startup** is on; there is no live sorting on create, edit, rename or move.
 - A note with invalid YAML frontmatter is skipped, counted as an error, and reported in the developer console. The rest of the batch continues.
 - YAML formatting can be normalized by Obsidian when a note is rewritten; comments inside the frontmatter are not guaranteed to survive.
 - Folder paths are compared case-sensitively.

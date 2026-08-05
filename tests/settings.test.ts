@@ -9,6 +9,17 @@ describe("normalizeSettings", () => {
 		expect(normalizeSettings({})).toEqual(DEFAULT_SETTINGS);
 	});
 
+	it("leaves the startup run off unless it was stored as enabled", () => {
+		expect(DEFAULT_SETTINGS.processAllNotesOnStartup).toBe(false);
+		expect(normalizeSettings({}).processAllNotesOnStartup).toBe(false);
+		expect(normalizeSettings({ processAllNotesOnStartup: "yes" }).processAllNotesOnStartup).toBe(
+			false,
+		);
+		expect(normalizeSettings({ processAllNotesOnStartup: true }).processAllNotesOnStartup).toBe(
+			true,
+		);
+	});
+
 	it("keeps the previous behavior when the unlisted setting is absent", () => {
 		const settings = normalizeSettings({ createMissingProperties: true, templates: [] });
 

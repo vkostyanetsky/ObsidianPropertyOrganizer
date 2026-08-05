@@ -21,6 +21,19 @@ export class PropertyOrganizerSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
+			.setName("Process all notes on vault startup")
+			.setDesc(
+				"Sort the properties of every matching note once the vault has finished loading. " +
+					"Off by default; the commands stay available either way.",
+			)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.processAllNotesOnStartup).onChange((value) => {
+					this.plugin.settings.processAllNotesOnStartup = value;
+					this.persist();
+				}),
+			);
+
+		new Setting(containerEl)
 			.setName("Create missing properties")
 			.setDesc(
 				"Add properties that a template lists but a note does not have yet. " +

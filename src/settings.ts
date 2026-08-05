@@ -26,6 +26,8 @@ const UNLISTED_PROPERTIES_BEHAVIORS: readonly UnlistedPropertiesBehavior[] = [
 ];
 
 export interface PropertyOrganizerSettings {
+	/** Organize every matching note once the vault has finished loading. */
+	processAllNotesOnStartup: boolean;
 	/** Create properties listed in a template but missing from the note. */
 	createMissingProperties: boolean;
 	/** How to treat properties the matching template does not list. */
@@ -35,6 +37,7 @@ export interface PropertyOrganizerSettings {
 }
 
 export const DEFAULT_SETTINGS: PropertyOrganizerSettings = {
+	processAllNotesOnStartup: false,
 	createMissingProperties: false,
 	unlistedProperties: "keep",
 	templates: [],
@@ -86,6 +89,7 @@ export function normalizeSettings(raw: unknown): PropertyOrganizerSettings {
 	}
 
 	return {
+		processAllNotesOnStartup: data.processAllNotesOnStartup === true,
 		createMissingProperties: data.createMissingProperties === true,
 		unlistedProperties: parseUnlistedPropertiesBehavior(data.unlistedProperties),
 		templates,
