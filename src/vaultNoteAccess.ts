@@ -7,7 +7,7 @@ import type { CachedFrontMatter, NoteAccess } from "./organizer";
  * `position` entry of the cached frontmatter object. It is not a real
  * property, so it must not take part in ordering decisions.
  */
-function isPositionEntry(key: string, value: unknown): boolean {
+export function isPositionEntry(key: string, value: unknown): boolean {
 	return (
 		key === "position" &&
 		typeof value === "object" &&

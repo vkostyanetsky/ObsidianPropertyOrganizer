@@ -73,6 +73,19 @@ type, status, created, modified, tags
 - If a name is repeated, only its first occurrence counts.
 - Names are case-sensitive and are never rewritten: `Type` and `type` are two different properties.
 
+### Name suggestions
+
+While a property list is typed, the field suggests the property names already used in the vault, the way Obsidian does when a new property is added to a note:
+
+- The suggestions narrow as you type, and are ranked by how well they match.
+- A name is chosen with the mouse, or with the arrow keys and `Enter`; `Esc` dismisses the list.
+- Choosing a name inserts it in full, in place of what was typed.
+- Suggestions are made for the property the caret is in, wherever it is in the list, so a name typed after a comma is completed like the first one.
+- Names already present in the same field are not suggested again, since a repeated name has no effect on the order.
+- Nothing has to be accepted: a property the vault does not have yet is simply typed.
+
+The names come from the frontmatter of the notes in Obsidian's metadata cache, so no note is read from disk, and the suggestions follow the vault as its notes change.
+
 ## Sorting rules
 
 - Properties listed in the selected template come first, in template order.
@@ -168,7 +181,7 @@ After an automatic run, a notice appears only if notes were updated or errors oc
 - **Process all notes on vault startup** — described above. Off by default.
 - **Create missing properties** — described above.
 - **Unlisted properties** — described above. A dropdown with **Keep all**, **Remove if empty** and **Remove all**.
-- **Folder templates** — an ordered list. Each row holds a folder field, with vault folder suggestions, and a comma-separated property list. Rows are reordered and deleted with the controls Obsidian renders for the list, and **Add template** appends a new row. Changes are saved automatically.
+- **Folder templates** — an ordered list. Each row holds a folder field, with vault folder suggestions, and a comma-separated property list, with suggestions of the property names used in the vault. Rows are reordered and deleted with the controls Obsidian renders for the list, and **Add template** appends a new row. Changes are saved automatically.
 
 The settings are built from declarative definitions, so they are found by the search in *Settings*.
 
@@ -214,11 +227,14 @@ Source layout:
 | `src/settings.ts` | Settings types, defaults, loading |
 | `src/settingsTab.ts` | Declarative setting definitions |
 | `src/folderSuggest.ts` | Folder suggestions |
+| `src/propertySuggest.ts` | Property name suggestions |
+| `src/propertyListInput.ts` | Pure editing of the property list being typed |
 | `src/templateMatching.ts` | Matching templates against note paths |
 | `src/propertyOrder.ts` | Pure property-order computation |
 | `src/organizer.ts` | Organizing a single note |
 | `src/batch.ts` | Batch processing and summaries |
 | `src/vaultNoteAccess.ts` | Vault access through the public API |
+| `src/vaultProperties.ts` | Property names in use across the vault |
 
 ## Limitations
 

@@ -11,6 +11,7 @@ import type { PropertyOrganizerSettings } from "./settings";
 import { PropertyOrganizerSettingTab } from "./settingsTab";
 import { findTemplateForPath } from "./templateMatching";
 import { VaultNoteAccess } from "./vaultNoteAccess";
+import { VaultPropertyNames } from "./vaultProperties";
 
 /**
  * How long to wait for the metadata cache to report itself resolved before
@@ -22,6 +23,7 @@ export default class PropertyOrganizerPlugin extends Plugin {
 	settings: PropertyOrganizerSettings = DEFAULT_SETTINGS;
 
 	private readonly noteAccess = new VaultNoteAccess(this.app);
+	private readonly propertyNames = new VaultPropertyNames(this.app);
 	private initialRunStarted = false;
 	private initialRunWindow: Window | null = null;
 	private initialRunTimeout: number | null = null;
@@ -29,7 +31,8 @@ export default class PropertyOrganizerPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		this.addSettingTab(new PropertyOrganizerSettingTab(this.app, this));
+		this.addSettingTab(new PropertyOrganizerSettingTab(this.app, this, this.propertyNames));
+		this.watchPropertyNames();
 
 		this.addCommand({
 			id: "sort-properties-in-all-notes",
@@ -72,6 +75,20 @@ export default class PropertyOrganizerPlugin extends Plugin {
 		const data: unknown = await this.loadData();
 
 		this.settings = normalizeSettings(data);
+	}
+
+	/**
+	 * Keeps the property names offered by the settings in step with the vault:
+	 * a note whose frontmatter changed, or that is gone, can have been the only
+	 * one using a name.
+	 */
+	private watchPropertyNames(): void {
+		const invalidate = () => {
+			this.propertyNames.invalidate();
+		};
+
+		this.registerEvent(this.app.metadataCache.on("changed", invalidate));
+		this.registerEvent(this.app.metadataCache.on("deleted", invalidate));
 	}
 
 	/** The note of the active Markdown view, never a previously active one. */

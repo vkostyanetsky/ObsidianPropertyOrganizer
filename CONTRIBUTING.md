@@ -51,8 +51,9 @@ The project follows the
 and the rules of `eslint-plugin-obsidianmd`. In particular:
 
 - Keep the sorting logic free of Obsidian imports. `propertyOrder.ts`,
-  `organizer.ts`, `batch.ts`, `settings.ts` and `templateMatching.ts` are pure
-  and unit-tested; Obsidian's API is reached through `vaultNoteAccess.ts`.
+  `organizer.ts`, `batch.ts`, `settings.ts`, `templateMatching.ts` and
+  `propertyListInput.ts` are pure and unit-tested; Obsidian's API is reached
+  through `vaultNoteAccess.ts` and `vaultProperties.ts`.
 - Style with the Obsidian CSS variables in `styles.css`, scoped to the
   `property-organizer-` classes. No inline styles, no `!important`.
 - Use sentence case in user-facing text, and no plugin-name prefix in notices.

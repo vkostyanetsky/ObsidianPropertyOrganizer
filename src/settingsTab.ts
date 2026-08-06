@@ -2,16 +2,20 @@ import { PluginSettingTab } from "obsidian";
 import type { App, Setting, SettingDefinition, SettingDefinitionItem } from "obsidian";
 
 import { FolderSuggest } from "./folderSuggest";
+import { PropertySuggest } from "./propertySuggest";
 import { createEmptyTemplate, parseUnlistedPropertiesBehavior } from "./settings";
 import type { FolderTemplate } from "./settings";
 import type PropertyOrganizerPlugin from "./main";
+import type { VaultPropertyNames } from "./vaultProperties";
 
 export class PropertyOrganizerSettingTab extends PluginSettingTab {
 	private readonly plugin: PropertyOrganizerPlugin;
+	private readonly propertyNames: VaultPropertyNames;
 
-	constructor(app: App, plugin: PropertyOrganizerPlugin) {
+	constructor(app: App, plugin: PropertyOrganizerPlugin, propertyNames: VaultPropertyNames) {
 		super(app, plugin);
 		this.plugin = plugin;
+		this.propertyNames = propertyNames;
 	}
 
 	getSettingDefinitions(): SettingDefinitionItem[] {
@@ -124,7 +128,8 @@ export class PropertyOrganizerSettingTab extends PluginSettingTab {
 			render: (setting: Setting) => {
 				setting.setClass("property-organizer-template");
 
-				let suggest: FolderSuggest | null = null;
+				let folderSuggest: FolderSuggest | null = null;
+				let propertySuggest: PropertySuggest | null = null;
 
 				setting.addSearch((search) => {
 					search
@@ -138,7 +143,7 @@ export class PropertyOrganizerSettingTab extends PluginSettingTab {
 					search.inputEl.addClass("property-organizer-folder");
 					search.inputEl.setAttribute("aria-label", "Template folder");
 
-					suggest = new FolderSuggest(this.app, search.inputEl, (folderPath) => {
+					folderSuggest = new FolderSuggest(this.app, search.inputEl, (folderPath) => {
 						template.folder = folderPath;
 						this.save();
 					});
@@ -149,16 +154,34 @@ export class PropertyOrganizerSettingTab extends PluginSettingTab {
 						.setPlaceholder("Example: type, status, created")
 						.setValue(template.properties)
 						.onChange((value) => {
+							// The suggestions ask the field to reconsider them with an
+							// `input` event, which lands here as well; saving is left to
+							// the edits that do change the list.
+							if (value === template.properties) {
+								return;
+							}
+
 							template.properties = value;
 							this.save();
 						});
 
 					text.inputEl.addClass("property-organizer-properties");
 					text.inputEl.setAttribute("aria-label", "Property order");
+
+					propertySuggest = new PropertySuggest(
+						this.app,
+						text.inputEl,
+						() => this.propertyNames.get(),
+						(value) => {
+							template.properties = value;
+							this.save();
+						},
+					);
 				});
 
 				return () => {
-					suggest?.close();
+					folderSuggest?.close();
+					propertySuggest?.close();
 				};
 			},
 		};

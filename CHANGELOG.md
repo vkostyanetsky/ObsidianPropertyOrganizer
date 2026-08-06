@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.0 - 2026-08-05
+
+### Added
+
+* Suggestions of the property names already used in the vault while a property list is typed in a template row. The list of suggestions narrows as you type, a name is chosen with the mouse or the keyboard — arrow keys and `Enter`, `Esc` to dismiss — and choosing one inserts the whole name. Suggestions are made for the property the caret is in, whichever place it has in the list, so a name typed after a comma is completed like the first one; names already present in the same field are left out, since repeating a name has no effect on the order. Nothing has to be accepted: a property the vault does not have yet is typed as before, and the stored comma-separated list keeps its format and is read exactly as it was.
+* The names come from the frontmatter of the notes Obsidian has in its metadata cache, so no note is read from disk, and the suggestions follow the vault as its notes change. Obsidian's own suggestion component does the filtering, the ranking and the highlighting, which is what makes the field behave like the one the app shows when a new property is added to a note.
+
 ## 1.2.0 - 2026-08-05
 
 ### Changed
