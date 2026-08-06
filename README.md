@@ -189,7 +189,13 @@ The settings are built from declarative definitions, so they are found by the se
 
 The plugin requires Obsidian **1.13.0** or newer, which is where the declarative settings API it is built on arrived.
 
-The plugin is not published in the community catalog. Install it manually:
+The plugin is published in the community catalog, so the usual way to install it is from inside Obsidian:
+
+1. Open *Settings → Community plugins → Browse*.
+2. Search for **Property Organizer**.
+3. Install it, then enable it.
+
+### Manual installation
 
 1. Build it (see below) or download `main.js`, `manifest.json` and `styles.css` from a release.
 2. Copy the three files into `<vault>/.obsidian/plugins/property-organizer/`.
