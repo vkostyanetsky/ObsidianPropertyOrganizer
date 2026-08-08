@@ -1,5 +1,7 @@
 # Property Organizer
 
+[README in Russian](README.ru.md)
+
 An Obsidian plugin that keeps the properties of your YAML frontmatter in the order you chose. You describe the order per folder, and the plugin rewrites the property order of matching notes — values, names and note content stay exactly as they were.
 
 Sorting runs on demand through two commands, and — if you turn the setting on — once when the vault is opened. Notes are never sorted behind your back when they are created, edited, renamed or moved.
