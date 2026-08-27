@@ -1,4 +1,4 @@
-# Property Organizer
+# Property Organizer 🗂️ 🏷️ ✨
 
 [README in Russian](README.ru.md)
 
@@ -6,7 +6,7 @@ An Obsidian plugin that keeps the properties of your YAML frontmatter in the ord
 
 Sorting runs on demand through two commands, and — if you turn the setting on — once when the vault is opened. Notes are never sorted behind your back when they are created, edited, renamed or moved.
 
-## Example
+## 🙂 Example
 
 A template for the `Projects` folder:
 
@@ -42,7 +42,7 @@ summary: Quarterly report
 
 `type`, `status` and `created` move to the front in template order. `modified` is not in the note, so it is ignored unless **Create missing properties** is on. `tags` is listed and moves up; `summary` is not listed and keeps its place after the listed ones.
 
-## Folder matching
+## 📂 Folder matching
 
 - A template applies to every Markdown note directly in its folder **and in any subfolder**. A template for `Projects` covers `Projects/note.md` and `Projects/Test/note.md`.
 - Matching respects path segments: `Projects` does **not** match `Projects-old/note.md`.
@@ -50,7 +50,7 @@ summary: Quarterly report
 - Folder paths are normalized by Obsidian, so `/Projects/`, `Projects` and `Projects//` are the same folder.
 - Notes that no template matches are left alone.
 
-## Template priority
+## 🥇 Template priority
 
 Templates are checked from top to bottom, and **the first matching template wins**. Later templates are not applied to the same note. Put the most specific folders above the general ones:
 
@@ -62,7 +62,7 @@ Templates are checked from top to bottom, and **the first matching template wins
 
 With that list, `Projects/Archive/note.md` uses the first template only, `Projects/note.md` the second, and everything else the third.
 
-## Property lists
+## 📋 Property lists
 
 Property names are entered as a comma-separated list, in the order you want them written:
 
@@ -88,7 +88,7 @@ While a property list is typed, the field suggests the property names already us
 
 The names come from the frontmatter of the notes in Obsidian's metadata cache, so no note is read from disk, and the suggestions follow the vault as its notes change.
 
-## Sorting rules
+## 🔤 Sorting rules
 
 - Properties listed in the selected template come first, in template order.
 - Every other existing property follows, keeping its original relative order, unless **Unlisted properties** removes it.
@@ -99,7 +99,7 @@ The names come from the frontmatter of the notes in Obsidian's metadata cache, s
 
 Frontmatter is rewritten through Obsidian's own API, so YAML formatting (indentation, quoting, comments) can be normalized by Obsidian. Property values are preserved.
 
-## Create missing properties
+## ➕ Create missing properties
 
 A global setting, **off** by default.
 
@@ -114,7 +114,7 @@ A global setting, **off** by default.
 
 Property types are left to Obsidian: the plugin never assigns or changes a property type. If a name already has a vault-level type, Obsidian applies it on its own.
 
-## Unlisted properties
+## 🧩 Unlisted properties
 
 A global setting that decides what happens to the frontmatter properties of a matched note that the matching template does **not** list. It applies to both commands and to the automatic run, and only to notes a template matches — notes without a template are never touched.
 
@@ -144,7 +144,7 @@ For a note matched by a template, the order of operations is:
 
 Removing properties is a destructive change, so keep the default until you are sure the templates list every property you want to keep — a fallback template for the vault root with an empty property list plus **Remove all** would strip the frontmatter of every note in the vault.
 
-## Commands
+## ⌨️ Commands
 
 | Command | What it does |
 |---------|--------------|
@@ -159,7 +159,7 @@ The current note command reports what happened:
 - `Properties are already organized.`
 - `Properties sorted.`
 
-## Process all notes on vault startup
+## 🔄 Process all notes on vault startup
 
 A global setting, **off** by default: the plugin processes notes only when you run a command.
 
@@ -170,7 +170,7 @@ The commands work the same way whatever the setting is: turning it off never dis
 
 The setting is read when the vault is loaded, so switching it on takes effect the next time you open the vault. Use **Sort properties in all notes** to process the vault right away.
 
-## Automatic run
+## 🤖 Automatic run
 
 When **Process all notes on vault startup** is on, the automatic run happens **once per vault load**: after the workspace is ready and after the metadata cache has finished its initial build, without blocking the interface. Writes made by the plugin do not start it again.
 
@@ -178,7 +178,7 @@ Enabling, disabling or hot-reloading the plugin after the vault has finished loa
 
 After an automatic run, a notice appears only if notes were updated or errors occurred.
 
-## Settings
+## ⚙️ Settings
 
 - **Process all notes on vault startup** — described above. Off by default.
 - **Create missing properties** — described above.
@@ -187,7 +187,7 @@ After an automatic run, a notice appears only if notes were updated or errors oc
 
 The settings are built from declarative definitions, so they are found by the search in *Settings*.
 
-## Installation
+## 📦 Installation
 
 The plugin requires Obsidian **1.13.0** or newer, which is where the declarative settings API it is built on arrived.
 
@@ -203,7 +203,7 @@ The plugin is published in the community catalog, so the usual way to install it
 2. Copy the three files into `<vault>/.obsidian/plugins/property-organizer/`.
 3. Reload Obsidian and enable **Property Organizer** in *Settings → Community plugins*.
 
-## Development
+## 🛠️ Development
 
 ```bash
 npm install
@@ -244,7 +244,7 @@ Source layout:
 | `src/vaultNoteAccess.ts` | Vault access through the public API |
 | `src/vaultProperties.ts` | Property names in use across the vault |
 
-## Limitations
+## ⚠️ Limitations
 
 - Notes are only processed on demand, or once per vault load when **Process all notes on vault startup** is on; there is no live sorting on create, edit, rename or move.
 - A note with invalid YAML frontmatter is skipped, counted as an error, and reported in the developer console. The rest of the batch continues.
@@ -252,10 +252,10 @@ Source layout:
 - Folder paths are compared case-sensitively.
 - Property types are never created or changed.
 
-## Mobile
+## 📱 Mobile
 
 The plugin is not desktop-only and works on mobile. It uses the public Obsidian API only — no Node.js, Electron or direct file-system access — and notes are processed sequentially, one after another, so a large vault does not flood the device with parallel writes. The controls of the folder template list — add, delete and reorder — are the ones Obsidian renders for a list of settings, so they behave as they do elsewhere in the app; the add affordance, for one, is a button on desktop and a row on mobile. The plugin only renders the two fields inside a row.
 
-## Credits
+## 🙏 Credits
 
 Scaffolded and reviewed with the help of the [obsidian-plugin-skill](https://github.com/gapmiss/obsidian-plugin-skill) for Claude.
